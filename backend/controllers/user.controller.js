@@ -13,7 +13,24 @@ export const register = async (req, res) => {
                 message: "Something is missing",
                 success: false
             });
-        };
+        }
+
+        // Add input validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({
+                message: "Invalid email format",
+                success: false
+            });
+        }
+
+        if (password.length < 6) {
+            return res.status(400).json({
+                message: "Password must be at least 6 characters",
+                success: false
+            });
+        }
+
         const file = req.file;
         const fileUri = getDataUri(file);
         const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
@@ -43,7 +60,12 @@ export const register = async (req, res) => {
             success: true
         });
     } catch (error) {
-        console.log(error);
+        console.error(error);
+        return res.status(500).json({
+            message: "Internal server error",
+            success: false,
+            error: error.message
+        });
     }
 }
 export const login = async (req, res) => {
@@ -92,7 +114,12 @@ export const login = async (req, res) => {
             profile: user.profile
         }
 
-        return res.status(200).cookie("token", token, { maxAge: 1 * 24 * 60 * 60 * 1000, httpsOnly: true, sameSite: 'strict' }).json({
+        return res.status(200).cookie("token", token, { 
+            maxAge: 1 * 24 * 60 * 60 * 1000, 
+            httpOnly: true,  // Change httpsOnly to httpOnly
+            sameSite: 'strict',
+            secure: process.env.NODE_ENV === 'production' // Add secure flag for production
+        }).json({
             message: `Welcome back ${user.fullname}`,
             user,
             success: true

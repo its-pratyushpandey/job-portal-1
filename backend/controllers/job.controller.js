@@ -4,35 +4,64 @@ import { Job } from "../models/job.model.js";
 export const postJob = async (req, res) => {
     try {
         const { title, description, requirements, salary, location, jobType, experience, position, companyId } = req.body;
-        const userId = req.id;
 
-        if (!title || !description || !requirements || !salary || !location || !jobType || !experience || !position || !companyId) {
+        // Enhanced validation
+        if (!title?.trim() || !description?.trim() || !requirements || !salary || !location?.trim() || 
+            !jobType?.trim() || !experience || !position || !companyId) {
             return res.status(400).json({
-                message: "Somethin is missing.",
+                message: "All fields are required",
+                success: false,
+                missingFields: Object.entries({ title, description, requirements, salary, location, 
+                    jobType, experience, position, companyId })
+                    .filter(([_, value]) => !value)
+                    .map(([key]) => key)
+            });
+        }
+
+        // Validate numeric fields
+        if (isNaN(salary) || salary <= 0) {
+            return res.status(400).json({
+                message: "Invalid salary value",
                 success: false
-            })
-        };
+            });
+        }
+
+        if (isNaN(position) || position <= 0) {
+            return res.status(400).json({
+                message: "Invalid position value",
+                success: false
+            });
+        }
+
         const job = await Job.create({
             title,
             description,
-            requirements: requirements.split(","),
+            requirements: Array.isArray(requirements) ? requirements : requirements.split(","),
             salary: Number(salary),
             location,
             jobType,
             experienceLevel: experience,
             position,
             company: companyId,
-            created_by: userId
+            created_by: req.id
         });
+
         return res.status(201).json({
-            message: "New job created successfully.",
+            message: "Job created successfully",
             job,
             success: true
         });
+
     } catch (error) {
-        console.log(error);
+        console.error(error);
+        return res.status(500).json({
+            message: "Error creating job",
+            success: false,
+            error: error.message
+        });
     }
 }
+
 // student k liye
 export const getAllJobs = async (req, res) => {
     try {
@@ -60,6 +89,7 @@ export const getAllJobs = async (req, res) => {
         console.log(error);
     }
 }
+
 // student
 export const getJobById = async (req, res) => {
     try {
@@ -78,6 +108,7 @@ export const getJobById = async (req, res) => {
         console.log(error);
     }
 }
+
 // admin kitne job create kra hai abhi tk
 export const getAdminJobs = async (req, res) => {
     try {
