@@ -1,27 +1,22 @@
 import React from 'react'
-import { Badge } from './ui/badge'
-import { useNavigate } from 'react-router-dom'
+import LatestJobCards from './LatestJobCards';
+import { useSelector } from 'react-redux'; 
 
-const LatestJobCards = ({job}) => {
-    const navigate = useNavigate();
+// const randomJobs = [1, 2, 3, 4, 5, 6, 7, 8];
+
+const LatestJobs = () => {
+    const {allJobs} = useSelector(store=>store.job);
+   
     return (
-        <div onClick={()=> navigate(`/description/${job._id}`)} className='p-5 rounded-md shadow-xl bg-white border border-gray-100 cursor-pointer'>
-            <div>
-                <h1 className='font-medium text-lg'>{job?.company?.name}</h1>
-                <p className='text-sm text-gray-500'>India</p>
+        <div className='max-w-7xl mx-auto my-20'>
+            <h1 className='text-4xl font-bold'><span className='text-[#6A38C2]'>Latest & Top </span> Job Openings</h1>
+            <div className='grid grid-cols-3 gap-4 my-5'>
+                {
+                    allJobs.length <= 0 ? <span>No Job Available</span> : allJobs?.slice(0,6).map((job) => <LatestJobCards key={job._id} job={job}/>)
+                }
             </div>
-            <div>
-                <h1 className='font-bold text-lg my-2'>{job?.title}</h1>
-                <p className='text-sm text-gray-600'>{job?.description}</p>
-            </div>
-            <div className='flex items-center gap-2 mt-4'>
-                <Badge className={'text-blue-700 font-bold'} variant="ghost">{job?.position} Positions</Badge>
-                <Badge className={'text-[#F83002] font-bold'} variant="ghost">{job?.jobType}</Badge>
-                <Badge className={'text-[#7209b7] font-bold'} variant="ghost">{job?.salary}LPA</Badge>
-            </div>
-
         </div>
     )
 }
 
-export default LatestJobCards
+export default LatestJobs
