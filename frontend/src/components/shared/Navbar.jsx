@@ -108,7 +108,6 @@ const Navbar = () => {
                         ) : (
                             <>
                                 <li><NavLink to="/" icon={HomeIcon}>Home</NavLink></li>
-                                <li><NavLink to="/jobs" icon={BriefcaseIcon}>Jobs</NavLink></li>
                                 <li><NavLink to="/browse" icon={GlobeIcon}>Browse</NavLink></li>
                                 <li><NavLink to="/saved-jobs" icon={BookmarkIcon}>Saved Jobs</NavLink></li>
                             </>

@@ -87,23 +87,7 @@ const Jobs = () => {
             <Navbar />
             
             {/* Hero Section */}
-            <div className="relative bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-900 dark:to-blue-900">
-                <div className="absolute inset-0 bg-grid-white/[0.05] bg-grid-16" />
-                <div className="relative max-w-7xl mx-auto px-4 py-16">
-                    <motion.div 
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="text-center text-white"
-                    >
-                        <h1 className="text-4xl md:text-5xl font-bold mb-4">
-                            Find Your Dream Job
-                        </h1>
-                        <p className="text-lg text-gray-200 max-w-2xl mx-auto">
-                            {filterJobs.length} opportunities waiting for you
-                        </p>
-                    </motion.div>
-                </div>
-            </div>
+           
 
             <div className="max-w-7xl mx-auto px-4 py-8">
                 {/* Controls Section */}
