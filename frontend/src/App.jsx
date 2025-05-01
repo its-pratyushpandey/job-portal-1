@@ -14,7 +14,8 @@ import AdminJobs from "./components/admin/AdminJobs";
 import PostJob from './components/admin/PostJob'
 import Applicants from './components/admin/Applicants'
 import ProtectedRoute from './components/admin/ProtectedRoute'
-
+import { ThemeProvider } from "./components/ThemeProvider";
+import SavedJobs from './components/SavedJobs'
 
 const appRouter = createBrowserRouter([
   {
@@ -45,6 +46,10 @@ const appRouter = createBrowserRouter([
     path: "/profile",
     element: <Profile />
   },
+  {
+    path: "/saved-jobs",
+    element: <SavedJobs />
+  },
   // admin ke liye yha se start hoga
   {
     path:"/admin/companies",
@@ -70,15 +75,12 @@ const appRouter = createBrowserRouter([
     path:"/admin/jobs/:id/applicants",
     element:<ProtectedRoute><Applicants/></ProtectedRoute> 
   },
-
 ])
 function App() {
-
   return (
-    <div>
+    <ThemeProvider defaultTheme="system" storageKey="job-portal-theme">
       <RouterProvider router={appRouter} />
-    </div>
+    </ThemeProvider>
   )
 }
-
 export default App

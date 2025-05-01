@@ -1,30 +1,200 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { 
+    Linkedin, 
+    Instagram, 
+    Github, 
+    Mail, 
+    PhoneCall, 
+    MapPin, 
+    Globe2,
+    Briefcase,
+    GraduationCap,
+    Users,
+    HeartHandshake,
+    Sparkles,
+    ArrowUpRight,
+    Building2,
+    Target,
+    Rocket,
+    Shield,
+    MessagesSquare
+} from 'lucide-react';
+import { Button } from '../ui/button';
 
 const Footer = () => {
-  return (
-    <footer className="border-t border-t-gray-200 py-8">
-      <div className="container mx-auto px-4">
-        <div className="flex flex-col md:flex-row justify-between items-center">
-          <div className="mb-4 md:mb-0">
-            <h2 className="text-xl font-bold">Job Hunt</h2>
-            <p className="text-sm">© 2024 Your Company. All rights reserved.</p>
-          </div>
-          
-          <div className="flex space-x-4 mt-4 md:mt-0">
-            <a href="https://facebook.com" className="hover:text-gray-400" aria-label="Facebook">
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M22.676 0H1.324C.593 0 0 .592 0 1.324v21.352C0 23.408.593 24 1.324 24H12.82V14.706H9.692v-3.578h3.128V8.408c0-3.1 1.893-4.787 4.657-4.787 1.325 0 2.463.1 2.794.144v3.238l-1.918.001c-1.503 0-1.794.715-1.794 1.762v2.31h3.587l-.468 3.578h-3.119V24h6.116C23.407 24 24 23.408 24 22.676V1.324C24 .592 23.407 0 22.676 0z" /></svg>
-            </a>
-            <a href="https://twitter.com" className="hover:text-gray-400" aria-label="Twitter">
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557a9.835 9.835 0 01-2.828.775 4.934 4.934 0 002.165-2.724 9.867 9.867 0 01-3.127 1.195 4.924 4.924 0 00-8.38 4.49A13.978 13.978 0 011.67 3.149 4.93 4.93 0 003.16 9.724a4.903 4.903 0 01-2.229-.616v.062a4.93 4.93 0 003.946 4.827 4.902 4.902 0 01-2.224.084 4.93 4.93 0 004.6 3.417A9.869 9.869 0 010 21.543a13.978 13.978 0 007.548 2.212c9.057 0 14.01-7.507 14.01-14.01 0-.213-.004-.425-.015-.636A10.012 10.012 0 0024 4.557z" /></svg>
-            </a>
-            <a href="https://linkedin.com" className="hover:text-gray-400" aria-label="LinkedIn">
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452H16.85v-5.569c0-1.327-.027-3.037-1.852-3.037-1.854 0-2.137 1.446-2.137 2.94v5.666H9.147V9.756h3.448v1.464h.05c.48-.91 1.653-1.871 3.401-1.871 3.634 0 4.307 2.39 4.307 5.498v5.605zM5.337 8.29c-1.105 0-2-.896-2-2 0-1.106.895-2 2-2 1.104 0 2 .895 2 2 0 1.104-.896 2-2 2zM7.119 20.452H3.553V9.756h3.566v10.696zM22.225 0H1.771C.791 0 0 .774 0 1.729v20.542C0 23.226.792 24 1.771 24h20.451c.979 0 1.771-.774 1.771-1.729V1.729C24 .774 23.205 0 22.225 0z" /></svg>
-            </a>
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
-}
+    const currentYear = new Date().getFullYear();
+
+    const footerSections = [
+        {
+            title: "Explore",
+            links: [
+                { label: "Browse Jobs", href: "/jobs", icon: <Briefcase className="h-4 w-4 text-blue-500" /> },
+                { label: "Companies", href: "/companies", icon: <Building2 className="h-4 w-4 text-purple-500" /> },
+                
+            ]
+        },
+        {
+            title: "For Job Seekers",
+            links: [
+                { label: "Saved Jobs", href: "/saved-jobs", icon: <HeartHandshake className="h-4 w-4 text-pink-500" /> },
+               
+                { label: "Profile", href: "/profile", icon: <Users className="h-4 w-4 text-cyan-500" /> },
+                
+            ]
+        },
+        {
+            title: "Quick Links",
+            links: [
+                { label: "About Us", href: "/about", icon: <Globe2 className="h-4 w-4 text-violet-500" /> },
+                { label: "Contact Support", href: "/contact", icon: <MessagesSquare className="h-4 w-4 text-amber-500" /> },
+              
+            ]
+        }
+    ];
+
+    const socialLinks = [
+        { 
+            icon: <Linkedin className="h-5 w-5" />, 
+            href: "https://linkedin.com", 
+            color: "hover:text-blue-500",
+            label: "LinkedIn"
+        },
+        { 
+            icon: <Github className="h-5 w-5" />, 
+            href: "https://github.com", 
+            color: "hover:text-gray-900 dark:hover:text-white",
+            label: "GitHub"
+        },
+        { 
+            icon: <Instagram className="h-5 w-5" />, 
+            href: "https://instagram.com", 
+            color: "hover:text-pink-500",
+            label: "Instagram"
+        }
+    ];
+
+    return (
+        <footer className="relative bg-white dark:bg-gray-900 pt-20 pb-10 overflow-hidden">
+            {/* Animated Background Elements */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-purple-500/5 via-pink-500/5 to-blue-500/5 dark:from-purple-500/10 dark:via-pink-500/10 dark:to-blue-500/10 rounded-full blur-3xl animate-pulse" />
+                <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-blue-500/5 via-purple-500/5 to-pink-500/5 dark:from-blue-500/10 dark:via-purple-500/10 dark:to-pink-500/10 rounded-full blur-3xl animate-pulse" />
+            </div>
+
+            <div className="max-w-7xl mx-auto px-4 relative">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
+                    {/* Brand Section */}
+                    <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        className="lg:col-span-2"
+                    >
+                        <Link to="/" className="inline-block group">
+                            <motion.h2 
+                                className="text-3xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent"
+                                whileHover={{ scale: 1.02 }}
+                            >
+                                Next<span className="text-[#F83002]">Hire</span>
+                            </motion.h2>
+                        </Link>
+                        <p className="mt-4 text-gray-600 dark:text-gray-400 leading-relaxed">
+                            Your premier destination for career growth and professional opportunities. 
+                            Connect with leading companies and take the next step in your career journey.
+                        </p>
+                        <div className="flex items-center gap-6 mt-8">
+                            {socialLinks.map((social, index) => (
+                                <motion.a
+                                    key={index}
+                                    href={social.href}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className={`group relative ${social.color}`}
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    <span className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                                        {social.label}
+                                    </span>
+                                    {social.icon}
+                                </motion.a>
+                            ))}
+                        </div>
+                    </motion.div>
+
+                    {/* Links Sections */}
+                    {footerSections.map((section, index) => (
+                        <motion.div
+                            key={index}
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: index * 0.1 }}
+                            className="lg:col-span-1"
+                        >
+                            <h3 className="text-lg font-semibold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 bg-clip-text text-transparent mb-6">
+                                {section.title}
+                            </h3>
+                            <ul className="space-y-4">
+                                {section.links.map((link, linkIndex) => (
+                                    <li key={linkIndex}>
+                                        <Link 
+                                            to={link.href}
+                                            className="group flex items-center gap-3 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-all duration-300"
+                                        >
+                                            <span className="transform group-hover:scale-110 transition-transform">
+                                                {link.icon}
+                                            </span>
+                                            <span className="group-hover:translate-x-1 transition-transform">
+                                                {link.label}
+                                            </span>
+                                            <ArrowUpRight className="h-3 w-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        </motion.div>
+                    ))}
+                </div>
+
+                {/* Bottom Bar */}
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: true }}
+                    className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-800"
+                >
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                        <p className="text-gray-600 dark:text-gray-400 text-sm">
+                            © {currentYear} NextHire. Building careers, connecting futures.
+                        </p>
+                        <div className="flex items-center gap-6 text-sm">
+                            <Link 
+                                to="/privacy" 
+                                className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+                            >
+                                Privacy Policy
+                            </Link>
+                            <Link 
+                                to="/terms" 
+                                className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+                            >
+                                Terms of Service
+                            </Link>
+                            <Link 
+                                to="/contact" 
+                                className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+                            >
+                                Contact Us
+                            </Link>
+                        </div>
+                    </div>
+                </motion.div>
+            </div>
+        </footer>
+    );
+};
 
 export default Footer;

@@ -11,8 +11,12 @@ const isAuthenticated = async (req, res, next) => {
             });
         }
 
+        if (!process.env.JWT_SECRET) {
+            throw new Error('JWT_SECRET is not configured');
+        }
+
         try {
-            const decoded = await jwt.verify(token, process.env.SECRET_KEY);
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
             req.id = decoded.userId;
             next();
         } catch (jwtError) {
@@ -22,13 +26,13 @@ const isAuthenticated = async (req, res, next) => {
             });
         }
     } catch (error) {
-        console.error(error);
+        console.error('Authentication error:', error);
         return res.status(500).json({
             message: "Authentication error",
             success: false,
             error: error.message
         });
     }
-}
+};
 
 export default isAuthenticated;
