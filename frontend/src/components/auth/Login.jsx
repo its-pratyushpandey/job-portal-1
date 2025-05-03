@@ -143,7 +143,7 @@ const Login = () => {
                                         value={input.email}
                                         name="email"
                                         onChange={changeHandler}
-                                        placeholder="johndoe@example.com"
+                                        placeholder="pratyush@example.com"
                                         className={`pl-10 ${errors.email ? 'border-red-500' : ''}`}
                                     />
                                     <Mail className="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />

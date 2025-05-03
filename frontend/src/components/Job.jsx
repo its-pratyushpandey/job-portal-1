@@ -31,18 +31,18 @@ const Job = ({ job, isSavedPage = false }) => {
 
         try {
             setSaving(true);
-            const res = await axios.post(`${JOB_API_END_POINT}/save`, 
+            const response = await axios.post(
+                `${JOB_API_END_POINT}/save`,
                 { jobId: job._id },
                 { withCredentials: true }
             );
 
-            if (res.data.success) {
-                setIsSaved(res.data.isSaved);
-                toast.success(res.data.message);
+            if (response.data.success) {
+                setIsSaved(!isSaved);
+                toast.success(response.data.message);
             }
         } catch (error) {
-            console.error(error);
-            toast.error(error.response?.data?.message || 'Error saving job');
+            toast.error(error.response?.data?.message || "Error saving job");
         } finally {
             setSaving(false);
         }
@@ -54,14 +54,13 @@ const Job = ({ job, isSavedPage = false }) => {
                 <p className="text-sm text-slate-500 dark:text-slate-400">
                     {daysAgoFunction(job?.createdAt) === 0 ? "Today" : `${daysAgoFunction(job?.createdAt)} days ago`}
                 </p>
-                <Button 
-                    variant="ghost" 
-                    className={`rounded-full text-slate-400 dark:text-slate-500 hover:text-purple-500 dark:hover:text-purple-400 ${saving ? 'opacity-50' : ''}`}
-                    size="icon"
+                <Button
+                    variant="ghost"
+                    className={`rounded-full ${isSaved ? 'text-purple-500' : 'text-gray-400'} hover:text-purple-600`}
                     onClick={handleSaveJob}
                     disabled={saving}
                 >
-                    <Bookmark className={isSaved ? 'fill-purple-500 dark:fill-purple-400' : ''} />
+                    <Bookmark className={isSaved ? 'fill-current' : ''} />
                 </Button>
             </div>
 

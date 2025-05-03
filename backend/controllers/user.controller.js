@@ -173,61 +173,77 @@ export const logout = async (req, res) => {
         console.log(error);
     }
 }
+
 export const updateProfile = async (req, res) => {
     try {
-        const { fullname, email, phoneNumber, bio, skills } = req.body;
-        
-        const file = req.file;
-        // cloudinary ayega idhar
-        const fileUri = getDataUri(file);
-        const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+        const { fullname, email, phoneNumber, bio, skills, location } = req.body;
+        const userId = req.id;
 
-
-
-        let skillsArray;
-        if(skills){
-            skillsArray = skills.split(",");
-        }
-        const userId = req.id; // middleware authentication
         let user = await User.findById(userId);
-
         if (!user) {
             return res.status(400).json({
                 message: "User not found.",
                 success: false
-            })
-        }
-        // updating data
-        if(fullname) user.fullname = fullname
-        if(email) user.email = email
-        if(phoneNumber)  user.phoneNumber = phoneNumber
-        if(bio) user.profile.bio = bio
-        if(skills) user.profile.skills = skillsArray
-      
-        // resume comes later here...
-        if(cloudResponse){
-            user.profile.resume = cloudResponse.secure_url // save the cloudinary url
-            user.profile.resumeOriginalName = file.originalname // Save the original file name
+            });
         }
 
+        // Handle file upload only if a file is present
+        if (req.file) {
+            const fileUri = getDataUri(req.file);
+            if (fileUri) {
+                try {
+                    const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+                    // Update resume only if upload is successful
+                    user.profile.resume = cloudResponse.secure_url;
+                    user.profile.resumeOriginalName = req.file.originalname;
+                } catch (cloudinaryError) {
+                    console.error('Cloudinary upload failed:', cloudinaryError);
+                    return res.status(500).json({
+                        message: "Failed to upload resume",
+                        success: false
+                    });
+                }
+            }
+        }
+
+        // Update other fields
+        if (fullname) user.fullname = fullname;
+        if (email) user.email = email;
+        if (phoneNumber) user.phoneNumber = phoneNumber;
+        if (bio) user.profile.bio = bio;
+        if (location) user.profile.location = location;
+        
+        // Handle skills array
+        if (skills) {
+            user.profile.skills = typeof skills === 'string' 
+                ? skills.split(',').map(skill => skill.trim()) 
+                : skills;
+        }
 
         await user.save();
 
-        user = {
+        // Format user response
+        const userResponse = {
             _id: user._id,
             fullname: user.fullname,
             email: user.email,
             phoneNumber: user.phoneNumber,
             role: user.role,
             profile: user.profile
-        }
+        };
 
         return res.status(200).json({
-            message:"Profile updated successfully.",
-            user,
-            success:true
-        })
+            message: "Profile updated successfully.",
+            user: userResponse,
+            success: true
+        });
+
     } catch (error) {
-        console.log(error);
+        console.error('Profile update error:', error);
+        return res.status(500).json({
+            message: "Internal server error",
+            success: false,
+            error: error.message
+        });
     }
-}
+};

@@ -20,7 +20,8 @@ const UpdateProfileDialog = ({ open, setOpen }) => {
         phoneNumber: user?.phoneNumber || "",
         bio: user?.profile?.bio || "",
         skills: user?.profile?.skills?.map(skill => skill) || "",
-        file: user?.profile?.resume || ""
+        file: user?.profile?.resume || "",
+        location: user?.profile?.location || ""
     });
     const dispatch = useDispatch();
 
@@ -41,9 +42,11 @@ const UpdateProfileDialog = ({ open, setOpen }) => {
         formData.append("phoneNumber", input.phoneNumber);
         formData.append("bio", input.bio);
         formData.append("skills", input.skills);
+        formData.append("location", input.location); // Make sure this is included
         if (input.file) {
             formData.append("file", input.file);
         }
+
         try {
             setLoading(true);
             const res = await axios.post(`${USER_API_END_POINT}/profile/update`, formData, {
@@ -52,21 +55,19 @@ const UpdateProfileDialog = ({ open, setOpen }) => {
                 },
                 withCredentials: true
             });
+
             if (res.data.success) {
                 dispatch(setUser(res.data.user));
                 toast.success(res.data.message);
+                setOpen(false);
             }
         } catch (error) {
-            console.log(error);
-            toast.error(error.response.data.message);
-        } finally{
+            console.error(error);
+            toast.error(error.response?.data?.message || "Error updating profile");
+        } finally {
             setLoading(false);
         }
-        setOpen(false);
-        console.log(input);
     }
-
-
 
     return (
         <div>
@@ -126,6 +127,17 @@ const UpdateProfileDialog = ({ open, setOpen }) => {
                                     name="skills"
                                     value={input.skills}
                                     onChange={changeEventHandler}
+                                    className="col-span-3"
+                                />
+                            </div>
+                            <div className='grid grid-cols-4 items-center gap-4'>
+                                <Label htmlFor="location" className="text-right">Location</Label>
+                                <Input
+                                    id="location"
+                                    name="location"
+                                    value={input.location}
+                                    onChange={changeEventHandler}
+                                    placeholder="e.g. New York, USA"
                                     className="col-span-3"
                                 />
                             </div>

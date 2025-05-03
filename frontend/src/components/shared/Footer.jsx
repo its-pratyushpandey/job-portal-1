@@ -2,196 +2,235 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
-    Linkedin, 
-    Instagram, 
-    Github, 
-    Mail, 
-    PhoneCall, 
-    MapPin, 
-    Globe2,
-    Briefcase,
-    GraduationCap,
-    Users,
-    HeartHandshake,
-    Sparkles,
-    ArrowUpRight,
-    Building2,
-    Target,
     Rocket,
+    Linkedin,
+    Github,
+    Mail,
+    HeartHandshake,
+    Building2,
     Shield,
-    MessagesSquare
+    ExternalLink,
+    MessageSquare,
+    Briefcase,
+    Globe2,
+    Phone,
+    MapPin,
+    ChevronRight 
 } from 'lucide-react';
 import { Button } from '../ui/button';
+import { Badge } from '../ui/badge';
+import { toast } from 'sonner';
 
 const Footer = () => {
     const currentYear = new Date().getFullYear();
 
-    const footerSections = [
-        {
-            title: "Explore",
-            links: [
-                { label: "Browse Jobs", href: "/jobs", icon: <Briefcase className="h-4 w-4 text-blue-500" /> },
-                { label: "Companies", href: "/companies", icon: <Building2 className="h-4 w-4 text-purple-500" /> },
-                
-            ]
-        },
-        {
-            title: "For Job Seekers",
-            links: [
-                { label: "Saved Jobs", href: "/saved-jobs", icon: <HeartHandshake className="h-4 w-4 text-pink-500" /> },
-               
-                { label: "Profile", href: "/profile", icon: <Users className="h-4 w-4 text-cyan-500" /> },
-                
-            ]
-        },
-        {
-            title: "Quick Links",
-            links: [
-                { label: "About Us", href: "/about", icon: <Globe2 className="h-4 w-4 text-violet-500" /> },
-                { label: "Contact Support", href: "/contact", icon: <MessagesSquare className="h-4 w-4 text-amber-500" /> },
-              
-            ]
-        }
-    ];
+    const footerLinks = {
+        jobSeekers: [
+            { 
+                label: "Browse Jobs", 
+                href: "/browse",
+                icon: <Briefcase className="h-4 w-4 text-purple-500" />
+            },
+            { 
+                label: "Saved Jobs", 
+                href: "/saved-jobs",
+                icon: <HeartHandshake className="h-4 w-4 text-pink-500" />
+            }
+        ],
+        employers: [
+            { 
+                label: "Post Jobs", 
+                href: "/admin/jobs/create",
+                icon: <Building2 className="h-4 w-4 text-blue-500" />
+            },
+            { 
+                label: "Find Talent", 
+                href: "/admin/companies",
+                icon: <Globe2 className="h-4 w-4 text-green-500" />
+            }
+        ],
+        contact: [
+            { 
+                label: "pratyush21072005@gmail.com",
+                href: "mailto:pratyush21072005@gmail.com",
+                icon: <Mail className="h-4 w-4 text-indigo-500" />
+            },
+            {
+                label: "+91 75629 20811",
+                href: "tel:+917562920811",
+                icon: <Phone className="h-4 w-4 text-emerald-500" />
+            },
+            {
+                label: "KL University, Andhra Pradesh",
+                href: "https://www.google.com/maps/place/KL+University,+Andhra+Pradesh",
+                icon: <MapPin className="h-4 w-4 text-red-500" />
+            }
+        ]
+    };
 
     const socialLinks = [
         { 
             icon: <Linkedin className="h-5 w-5" />, 
-            href: "https://linkedin.com", 
-            color: "hover:text-blue-500",
+            href: "https://linkedin.com/in/pratyush-pandey1",
+            color: "bg-[#0077B5] hover:bg-[#006399]",
             label: "LinkedIn"
         },
         { 
             icon: <Github className="h-5 w-5" />, 
-            href: "https://github.com", 
-            color: "hover:text-gray-900 dark:hover:text-white",
+            href: "https://github.com/its-pratyushpandey",
+            color: "bg-gray-900 hover:bg-gray-800 dark:bg-gray-800 dark:hover:bg-gray-700",
             label: "GitHub"
         },
         { 
-            icon: <Instagram className="h-5 w-5" />, 
-            href: "https://instagram.com", 
-            color: "hover:text-pink-500",
-            label: "Instagram"
+            icon: <Mail className="h-5 w-5" />, 
+            href: "mailto:pratyush21072005@gmail.com",
+            color: "bg-purple-500 hover:bg-purple-600",
+            label: "Email"
         }
+        
     ];
 
-    return (
-        <footer className="relative bg-white dark:bg-gray-900 pt-20 pb-10 overflow-hidden">
-            {/* Animated Background Elements */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-purple-500/5 via-pink-500/5 to-blue-500/5 dark:from-purple-500/10 dark:via-pink-500/10 dark:to-blue-500/10 rounded-full blur-3xl animate-pulse" />
-                <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-blue-500/5 via-purple-500/5 to-pink-500/5 dark:from-blue-500/10 dark:via-purple-500/10 dark:to-pink-500/10 rounded-full blur-3xl animate-pulse" />
-            </div>
+    const handleNewsletter = (e) => {
+        e.preventDefault();
+        const email = e.target.email.value;
+        if (email) {
+            toast.success('Successfully subscribed to updates!');
+            e.target.reset();
+        }
+    };
 
-            <div className="max-w-7xl mx-auto px-4 relative">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
-                    {/* Brand Section */}
-                    <motion.div 
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        className="lg:col-span-2"
+    const FooterLinkSection = ({ title, links }) => (
+        <div className="space-y-4">
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+                {title}
+            </h3>
+            <ul className="space-y-3">
+                {links.map((link, index) => (
+                    <motion.li 
+                        key={index}
+                        whileHover={{ x: 2 }}
+                        className="flex items-center gap-2"
                     >
+                        {link.isExternal ? (
+                            <a 
+                                href={link.href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="group flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
+                            >
+                                {link.icon}
+                                <span className="text-sm group-hover:translate-x-1 transition-transform">
+                                    {link.label}
+                                </span>
+                                <ChevronRight className="h-3 w-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                            </a>
+                        ) : (
+                            <Link 
+                                to={link.href}
+                                className="group flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
+                            >
+                                {link.icon}
+                                <span className="text-sm group-hover:translate-x-1 transition-transform">
+                                    {link.label}
+                                </span>
+                                <ChevronRight className="h-3 w-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                            </Link>
+                        )}
+                    </motion.li>
+                ))}
+            </ul>
+        </div>
+    );
+
+    return (
+        <footer className="relative bg-white dark:bg-gray-900 pt-16 pb-8">
+            <div className="max-w-7xl mx-auto px-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+                    {/* Brand & Newsletter */}
+                    <div className="lg:col-span-1">
                         <Link to="/" className="inline-block group">
-                            <motion.h2 
-                                className="text-3xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent"
+                            <motion.div 
+                                className="flex items-center gap-2"
                                 whileHover={{ scale: 1.02 }}
                             >
-                                Next<span className="text-[#F83002]">Hire</span>
-                            </motion.h2>
+                                <Rocket className="h-6 w-6 text-purple-600" />
+                                <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent">
+                                    Next<span className="text-[#F83002]">Hire</span>
+                                </h2>
+                            </motion.div>
                         </Link>
-                        <p className="mt-4 text-gray-600 dark:text-gray-400 leading-relaxed">
-                            Your premier destination for career growth and professional opportunities. 
-                            Connect with leading companies and take the next step in your career journey.
-                        </p>
-                        <div className="flex items-center gap-6 mt-8">
+
+                        {/* Newsletter */}
+                        <div className="mt-6">
+                            <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
+                                Get Job Updates
+                            </h3>
+                            <form onSubmit={handleNewsletter} className="space-y-2">
+                                <div className="flex gap-2">
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        placeholder="Enter your email"
+                                        className="flex-1 px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                        required
+                                    />
+                                    <Button 
+                                        type="submit"
+                                        className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+                                    >
+                                        Subscribe
+                                    </Button>
+                                </div>
+                            </form>
+                        </div>
+
+                        {/* Social Links */}
+                        <div className="flex gap-4 mt-6">
                             {socialLinks.map((social, index) => (
                                 <motion.a
                                     key={index}
                                     href={social.href}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className={`group relative ${social.color}`}
-                                    whileHover={{ scale: 1.1 }}
+                                    className={`p-2 rounded-full text-white ${social.color}`}
+                                    whileHover={{ scale: 1.1, rotate: 5 }}
                                     whileTap={{ scale: 0.95 }}
                                 >
-                                    <span className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                                        {social.label}
-                                    </span>
                                     {social.icon}
                                 </motion.a>
                             ))}
                         </div>
-                    </motion.div>
+                    </div>
 
-                    {/* Links Sections */}
-                    {footerSections.map((section, index) => (
-                        <motion.div
-                            key={index}
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: index * 0.1 }}
-                            className="lg:col-span-1"
-                        >
-                            <h3 className="text-lg font-semibold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 bg-clip-text text-transparent mb-6">
-                                {section.title}
-                            </h3>
-                            <ul className="space-y-4">
-                                {section.links.map((link, linkIndex) => (
-                                    <li key={linkIndex}>
-                                        <Link 
-                                            to={link.href}
-                                            className="group flex items-center gap-3 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-all duration-300"
-                                        >
-                                            <span className="transform group-hover:scale-110 transition-transform">
-                                                {link.icon}
-                                            </span>
-                                            <span className="group-hover:translate-x-1 transition-transform">
-                                                {link.label}
-                                            </span>
-                                            <ArrowUpRight className="h-3 w-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
-                                        </Link>
-                                    </li>
-                                ))}
-                            </ul>
-                        </motion.div>
-                    ))}
+                    {/* Footer Sections */}
+                    <FooterLinkSection title="For Job Seekers" links={footerLinks.jobSeekers} />
+                    <FooterLinkSection title="For Employers" links={footerLinks.employers} />
+                    <FooterLinkSection title="Contact Us" links={footerLinks.contact} />
                 </div>
 
-                {/* Bottom Bar */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    viewport={{ once: true }}
-                    className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-800"
-                >
+                {/* Footer Bottom */}
+                <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-700">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                        <p className="text-gray-600 dark:text-gray-400 text-sm">
-                            © {currentYear} NextHire. Building careers, connecting futures.
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                            © {currentYear} NextHire. All rights reserved.
                         </p>
-                        <div className="flex items-center gap-6 text-sm">
-                            <Link 
-                                to="/privacy" 
-                                className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
-                            >
+                        <div className="flex items-center gap-6">
+                            <Link to="/privacy" className="text-sm text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400">
                                 Privacy Policy
                             </Link>
-                            <Link 
-                                to="/terms" 
-                                className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
-                            >
+                            <Link to="/terms" className="text-sm text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400">
                                 Terms of Service
                             </Link>
-                            <Link 
-                                to="/contact" 
-                                className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+                            <Badge 
+                                variant="outline" 
+                                className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0"
                             >
-                                Contact Us
-                            </Link>
+                                <Shield className="h-3 w-3 mr-1" />
+                                Premium
+                            </Badge>
                         </div>
                     </div>
-                </motion.div>
+                </div>
             </div>
         </footer>
     );
