@@ -16,7 +16,8 @@ import {
     ImagePlus,
     Loader2,
     ArrowRight,
-    CheckCircle2
+    CheckCircle2,
+    GraduationCap
 } from 'lucide-react'
 import axios from 'axios'
 import { USER_API_END_POINT } from '@/utils/constant'
@@ -165,44 +166,64 @@ const Signup = () => {
                             </div>
 
                             <div className='flex flex-col md:flex-row gap-6 items-start md:items-center justify-between'>
-                                <RadioGroup className="flex items-center gap-4">
-                                    <motion.div 
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
-                                        className="flex items-center space-x-2 bg-purple-50 dark:bg-purple-900/20 px-4 py-2 rounded-full"
-                                    >
-                                        <Input
-                                            type="radio"
-                                            name="role"
-                                            value="student"
-                                            checked={input.role === 'student'}
-                                            onChange={changeEventHandler}
-                                            className="cursor-pointer"
-                                        />
-                                        <Label className="flex items-center gap-2">
-                                            <User className="h-4 w-4" />
-                                            Student
-                                        </Label>
-                                    </motion.div>
-                                    <motion.div 
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
-                                        className="flex items-center space-x-2 bg-blue-50 dark:bg-blue-900/20 px-4 py-2 rounded-full"
-                                    >
-                                        <Input
-                                            type="radio"
-                                            name="role"
-                                            value="recruiter"
-                                            checked={input.role === 'recruiter'}
-                                            onChange={changeEventHandler}
-                                            className="cursor-pointer"
-                                        />
-                                        <Label className="flex items-center gap-2">
-                                            <Building2 className="h-4 w-4" />
-                                            Recruiter
-                                        </Label>
-                                    </motion.div>
-                                </RadioGroup>
+                                <div className="relative">
+                                    <Label className="text-gray-700 dark:text-gray-300">Select Role</Label>
+                                    <div className="grid grid-cols-2 gap-3 mt-2">
+                                        <motion.button
+                                            type="button"
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                            onClick={() => setInput(prev => ({ ...prev, role: 'student' }))}
+                                            className={`p-3 rounded-xl flex flex-col items-center justify-center border-2 transition-all duration-200 ${
+                                                input.role === 'student'
+                                                ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20'
+                                                : 'border-gray-200 dark:border-gray-700'
+                                            }`}
+                                        >
+                                            <div className={`p-2 rounded-lg ${
+                                                input.role === 'student'
+                                                ? 'bg-purple-500 text-white'
+                                                : 'bg-gray-100 dark:bg-gray-800'
+                                            }`}>
+                                                <GraduationCap className="h-5 w-5" />
+                                            </div>
+                                            <span className={`mt-2 text-sm font-medium ${
+                                                input.role === 'student'
+                                                ? 'text-purple-600 dark:text-purple-400'
+                                                : 'text-gray-600 dark:text-gray-400'
+                                            }`}>
+                                                Job Seeker
+                                            </span>
+                                        </motion.button>
+
+                                        <motion.button
+                                            type="button"
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                            onClick={() => setInput(prev => ({ ...prev, role: 'recruiter' }))}
+                                            className={`p-3 rounded-xl flex flex-col items-center justify-center border-2 transition-all duration-200 ${
+                                                input.role === 'recruiter'
+                                                ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20'
+                                                : 'border-gray-200 dark:border-gray-700'
+                                            }`}
+                                        >
+                                            <div className={`p-2 rounded-lg ${
+                                                input.role === 'recruiter'
+                                                ? 'bg-purple-500 text-white'
+                                                : 'bg-gray-100 dark:bg-gray-800'
+                                            }`}>
+                                                <Building2 className="h-5 w-5" />
+                                            </div>
+                                            <span className={`mt-2 text-sm font-medium ${
+                                                input.role === 'recruiter'
+                                                ? 'text-purple-600 dark:text-purple-400'
+                                                : 'text-gray-600 dark:text-gray-400'
+                                            }`}>
+                                                Recruiter
+                                            </span>
+                                        </motion.button>
+                                    </div>
+                                </div>
 
                                 <div className="relative">
                                     <Label className="text-gray-700 dark:text-gray-300">Profile Photo</Label>

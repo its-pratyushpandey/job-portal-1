@@ -9,9 +9,9 @@ import { format } from 'date-fns';
 import { 
     Building2, Plus, Search, Briefcase, Users, Globe2, TrendingUp,
     LayoutGrid, LayoutList, Filter, SlidersHorizontal, Settings2,
-    ArrowUpRight, ChartBar, Target, Award, ClipboardCheck, 
+    ArrowUpRight, BarChart2, Target, Award, ClipboardCheck, 
     MapPin, Calendar, DollarSign, UserCheck, Shield, Zap,
-    BookOpen, Rocket, Star, BarChart2, Download, Share2,
+    BookOpen, Rocket, Star, Download, Share2,
     Crown, AlertCircle, Loader2, FileSpreadsheet, PieChart,
     Activity, TrendingDown, CheckCircle2, MessageSquare, RefreshCw,
     Clock, Sparkles, LineChart
@@ -23,56 +23,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
-const PremiumBadge = ({ icon: Icon, value, label, color }) => (
-    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full bg-${color}-50 dark:bg-${color}-900/20`}>
-        <Icon className={`h-4 w-4 text-${color}-500`} />
-        <span className={`text-sm font-medium text-${color}-600 dark:text-${color}-400`}>
-            {label}: {value}
-        </span>
-    </div>
-);
-
-const PremiumBanner = ({ stats }) => (
-    <motion.div 
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white border-b border-white/10"
-    >
-        <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-            <div className="flex items-center gap-3">
-                <div className="p-2 bg-white/10 rounded-lg">
-                    <Crown className="h-5 w-5 text-amber-300" />
-                </div>
-                <div>
-                    <h3 className="font-semibold">Premium Features Activated</h3>
-                    <p className="text-sm text-white/80">
-                        Access to advanced recruiter tools and analytics
-                    </p>
-                </div>
-            </div>
-            <div className="hidden md:flex items-center gap-4">
-                <PremiumBadge 
-                    icon={Target} 
-                    value={stats.totalHires || '0'} 
-                    label="Total Hires" 
-                    color="emerald" 
-                />
-                <PremiumBadge 
-                    icon={ChartBar} 
-                    value={stats.responseRate} 
-                    label="Response Rate" 
-                    color="blue" 
-                />
-                <PremiumBadge 
-                    icon={LineChart} 
-                    value={stats.growthRate} 
-                    label="Growth" 
-                    color="purple" 
-                />
-            </div>
-        </div>
-    </motion.div>
-);
 
 const QuickActionButton = ({ icon: Icon, label, onClick, loading }) => (
     <motion.button
@@ -233,33 +183,10 @@ const Companies = () => {
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
             <Navbar />
             
-            <PremiumBanner stats={stats} />
+          
 
             <div className="max-w-7xl mx-auto px-4 py-8">
-                <div className="flex flex-wrap gap-4 mb-6">
-                    <QuickActionButton
-                        icon={Download}
-                        label="Export Data"
-                        onClick={handleExport}
-                        loading={isExporting}
-                    />
-                    <QuickActionButton
-                        icon={RefreshCw}
-                        label="Refresh Data"
-                        onClick={handleRefresh}
-                        loading={isLoading}
-                    />
-                    <QuickActionButton
-                        icon={Plus}
-                        label="Add Company"
-                        onClick={() => navigate("/admin/companies/create")}
-                    />
-                    <QuickActionButton
-                        icon={PieChart}
-                        label="Analytics"
-                        onClick={() => toast.info('Analytics coming soon!')}
-                    />
-                </div>
+               
 
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -287,26 +214,7 @@ const Companies = () => {
                         </motion.div>
                     </div>
 
-                    <div className="mt-6 flex flex-wrap gap-4">
-                        <Button
-                            variant="outline"
-                            className="group gap-2 hover:bg-purple-50 dark:hover:bg-purple-900/20"
-                            onClick={handleExport}
-                        >
-                            <Download className="h-4 w-4 text-purple-500" />
-                            <span>Export Data</span>
-                            <ArrowUpRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        </Button>
-                        <Button
-                            variant="outline"
-                            className="group gap-2 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                            onClick={handleRefresh}
-                        >
-                            <RefreshCw className="h-4 w-4 text-blue-500" />
-                            <span>Refresh Data</span>
-                            <ArrowUpRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        </Button>
-                    </div>
+                   
                 </motion.div>
 
                 <motion.div
@@ -375,30 +283,25 @@ const Companies = () => {
                             </Select>
 
                             <div className="flex items-center gap-2">
-                                <Button
+                            <Button
                                     variant={viewMode === 'grid' ? 'default' : 'outline'}
                                     size="icon"
                                     onClick={() => setViewMode('grid')}
                                 >
                                     <LayoutGrid className="h-4 w-4" />
+                                   
                                 </Button>
                                 <Button
                                     variant={viewMode === 'list' ? 'default' : 'outline'}
                                     size="icon"
                                     onClick={() => setViewMode('list')}
                                 >
-                                    <LayoutList className="h-4 w-4" />
+                                   <LayoutList className="h-4 w-4" />
                                 </Button>
+                                
                             </div>
 
-                            <Button
-                                variant="outline"
-                                onClick={() => setActiveFilters({ ...activeFilters, status: 'active' })}
-                                className="gap-2"
-                            >
-                                <SlidersHorizontal className="h-4 w-4" />
-                                Filters
-                            </Button>
+                           
                         </div>
                     </div>
                 </motion.div>
@@ -448,7 +351,7 @@ const Companies = () => {
                             onClick={() => navigate("/admin/companies/create")}
                             className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
                         >
-                            Add Company
+                          Add Company  
                         </Button>
                     </motion.div>
                 )}

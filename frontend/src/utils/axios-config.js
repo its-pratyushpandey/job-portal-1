@@ -1,14 +1,15 @@
 import axios from 'axios';
 
-// Create axios instance with default config
 const api = axios.create({
+    baseURL: 'http://localhost:8000/api/v1',
     withCredentials: true,
     headers: {
+        'Accept': 'application/json',
         'Content-Type': 'application/json'
     }
 });
 
-// Add response interceptor
+// Add a response interceptor for handling errors
 api.interceptors.response.use(
     response => response,
     error => {

@@ -6,72 +6,41 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { 
     Edit2, Eye, MoreHorizontal, Briefcase, Calendar, Users, Clock,
     MapPin, DollarSign, Award, Star, Archive, Trash2, TrendingUp,
-    Bell, Mail, Download, Share2, Bookmark, Shield, ChartBar,
+    Bell, Mail, Download, Share2, Bookmark, Shield, BarChart2,
     CheckCircle2, AlertCircle, Building2, GraduationCap, Plus,
-    FileSpreadsheet, Filter, RefreshCcw, Settings, Search, BarChart2,
-    PieChart, TrendingDown, UserCheck, Target, Zap, Sparkles,
-    BellRing, X
+    FileSpreadsheet, Filter, RefreshCcw, Settings, Search, PieChart,
+    TrendingDown, UserCheck, Target, Zap, Sparkles,
+    BellRing, X, Loader2
 } from 'lucide-react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { Badge } from '../ui/badge'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
-import { format } from 'date-fns'
+import axios from 'axios'
+import { JOB_API_END_POINT } from '@/utils/constant'
+import { toast } from 'react-hot-toast'
 import {
-    AreaChart,
-    Area,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip as RechartsTooltip,
-    ResponsiveContainer,
-    PieChart as RechartsPieChart,
-    Pie,
-    Cell
-} from 'recharts'
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "../ui/alert-dialog"
 
 const AdminJobsTable = () => { 
     const dispatch = useDispatch();
     const {allAdminJobs, searchJobByText} = useSelector(store=>store.job);
     const [filterJobs, setFilterJobs] = useState(allAdminJobs);
-    const [selectedView, setSelectedView] = useState('all');
     const [timeRange, setTimeRange] = useState('week');
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
-    const [notifications, setNotifications] = useState([
-        { id: 1, text: 'New application received for Senior Developer position', time: '5m ago', unread: true },
-        { id: 2, text: 'Interview scheduled for Product Manager role', time: '1h ago', unread: true },
-        { id: 3, text: 'Application status updated for UI Designer', time: '2h ago', unread: false }
-    ]);
-    const [showSettings, setShowSettings] = useState(false);
-    const [settingsOptions, setSettingsOptions] = useState({
-        emailNotifications: true,
-        pushNotifications: true,
-        darkMode: false,
-        autoArchive: false
-    });
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [jobToDelete, setJobToDelete] = useState(null);
     const navigate = useNavigate();
-
-    // Mock data for charts
-    const applicationTrends = [
-        { name: 'Mon', applications: 4 },
-        { name: 'Tue', applications: 6 },
-        { name: 'Wed', applications: 8 },
-        { name: 'Thu', applications: 12 },
-        { name: 'Fri', applications: 9 },
-        { name: 'Sat', applications: 5 },
-        { name: 'Sun', applications: 3 }
-    ];
-
-    const jobCategories = [
-        { name: 'Development', value: 45 },
-        { name: 'Design', value: 25 },
-        { name: 'Marketing', value: 20 },
-        { name: 'Management', value: 10 }
-    ];
-
-    const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
     useEffect(() => { 
         filterJobsList();
@@ -115,31 +84,6 @@ const AdminJobsTable = () => {
         setFilterJobs(filtered);
     };
 
-    const markNotificationRead = (id) => {
-        setNotifications(prev => 
-            prev.map(notif => 
-                notif.id === id ? { ...notif, unread: false } : notif
-            )
-        );
-    };
-
-    const removeNotification = (id) => {
-        setNotifications(prev => prev.filter(notif => notif.id !== id));
-    };
-
-    const updateSettings = (key) => {
-        setSettingsOptions(prev => ({
-            ...prev,
-            [key]: !prev[key]
-        }));
-    };
-
-    const getJobStatusColor = (applications = 0) => {
-        if (applications > 20) return 'bg-gradient-to-r from-green-500 to-green-600';
-        if (applications > 10) return 'bg-gradient-to-r from-yellow-500 to-yellow-600';
-        return 'bg-gradient-to-r from-blue-500 to-blue-600';
-    }
-
     const getJobPriorityBadge = (applications = 0) => {
         if (applications > 20) return (
             <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
@@ -167,13 +111,62 @@ const AdminJobsTable = () => {
 
     const stats = getDashboardStats();
 
+    const handleDeleteJob = async (jobId) => {
+        try {
+            setIsDeleting(true);
+            console.log('Attempting to delete job:', jobId);
+            
+            const res = await axios.delete(`${JOB_API_END_POINT}/${jobId}`, {
+                withCredentials: true,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+
+            if (res.data.success) {
+                const updatedJobs = filterJobs.filter(job => job._id !== jobId);
+                setFilterJobs(updatedJobs);
+                toast.success('Job deleted successfully');
+            } else {
+                throw new Error(res.data.message || 'Failed to delete job');
+            }
+        } catch (error) {
+            console.error('Error deleting job:', {
+                error: error.message,
+                response: error.response?.data,
+                status: error.response?.status,
+                jobId: jobId
+            });
+            
+            if (error.response) {
+                if (error.response.status === 403) {
+                    toast.error('You do not have permission to delete this job. Please make sure you are the job creator.');
+                } else if (error.response.status === 404) {
+                    toast.error('Job not found');
+                } else if (error.response.status === 401) {
+                    toast.error('Please login to delete jobs');
+                } else {
+                    toast.error(error.response.data?.message || 'Failed to delete job');
+                }
+            } else if (error.request) {
+                toast.error('No response from server. Please try again.');
+            } else {
+                toast.error(error.message || 'An error occurred while deleting the job');
+            }
+        } finally {
+            setIsDeleting(false);
+            setJobToDelete(null);
+        }
+    };
+
     return (
         <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="space-y-6 p-6 bg-gray-50 dark:bg-gray-900 min-h-screen"
         >
-            {/* Enhanced Dashboard Header */}
+            {/* Dashboard Header */}
             <div className="flex flex-col space-y-6">
                 <div className="flex justify-between items-center bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
                     <div className="flex items-center space-x-4">
@@ -186,7 +179,7 @@ const AdminJobsTable = () => {
                             </h2>
                             <p className="text-gray-500 flex items-center">
                                 <UserCheck className="w-4 h-4 mr-2" />
-                                Streamline your recruitment process
+                                Manage your job listings
                             </p>
                         </div>
                     </div>
@@ -207,15 +200,6 @@ const AdminJobsTable = () => {
                         <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
-                            className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 
-                                     bg-gray-100 dark:bg-gray-700 rounded-lg"
-                        >
-                            <RefreshCcw className="w-5 h-5" />
-                        </motion.button>
-
-                        <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
                             className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-400 text-white rounded-xl
                                      flex items-center space-x-2 shadow-lg hover:shadow-blue-500/30 transition-all"
                             onClick={() => navigate('/admin/jobs/create')}
@@ -226,8 +210,8 @@ const AdminJobsTable = () => {
                     </div>
                 </div>
 
-                {/* Enhanced Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                {/* Stats Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <motion.div
                         whileHover={{ y: -5 }}
                         className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700"
@@ -236,9 +220,6 @@ const AdminJobsTable = () => {
                             <div>
                                 <p className="text-gray-500 text-sm">Active Jobs</p>
                                 <h3 className="text-2xl font-bold">{stats.activeJobs}</h3>
-                                <p className="text-green-500 text-sm flex items-center mt-1">
-                                    <TrendingUp className="w-4 h-4 mr-1" /> +12% this week
-                                </p>
                             </div>
                             <div className="p-3 bg-blue-100 rounded-lg">
                                 <Briefcase className="w-6 h-6 text-blue-500" />
@@ -254,9 +235,6 @@ const AdminJobsTable = () => {
                             <div>
                                 <p className="text-gray-500 text-sm">Total Applications</p>
                                 <h3 className="text-2xl font-bold">{stats.totalApplications}</h3>
-                                <p className="text-green-500 text-sm flex items-center mt-1">
-                                    <TrendingUp className="w-4 h-4 mr-1" /> +5% this week
-                                </p>
                             </div>
                             <div className="p-3 bg-green-100 rounded-lg">
                                 <Users className="w-6 h-6 text-green-500" />
@@ -272,111 +250,15 @@ const AdminJobsTable = () => {
                             <div>
                                 <p className="text-gray-500 text-sm">Avg. Applications</p>
                                 <h3 className="text-2xl font-bold">{stats.avgApplications}</h3>
-                                <p className="text-yellow-500 text-sm flex items-center mt-1">
-                                    <TrendingUp className="w-4 h-4 mr-1" /> Stable
-                                </p>
                             </div>
                             <div className="p-3 bg-purple-100 rounded-lg">
-                                <ChartBar className="w-6 h-6 text-purple-500" />
-                            </div>
-                        </div>
-                    </motion.div>
-
-                    <motion.div
-                        whileHover={{ y: -5 }}
-                        className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700"
-                    >
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-gray-500 text-sm">Time to Hire</p>
-                                <h3 className="text-2xl font-bold">15 Days</h3>
-                                <p className="text-red-500 text-sm flex items-center mt-1">
-                                    <TrendingUp className="w-4 h-4 mr-1" /> +2 days
-                                </p>
-                            </div>
-                            <div className="p-3 bg-orange-100 rounded-lg">
-                                <Clock className="w-6 h-6 text-orange-500" />
+                                <BarChart2 className="w-6 h-6 text-purple-500" />
                             </div>
                         </div>
                     </motion.div>
                 </div>
 
-                {/* Analytics Section with Working Charts */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <motion.div
-                        whileHover={{ y: -5 }}
-                        className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700"
-                    >
-                        <div className="flex items-center justify-between mb-6">
-                            <h3 className="text-lg font-semibold flex items-center">
-                                <BarChart2 className="w-5 h-5 mr-2 text-blue-500" />
-                                Application Trends
-                            </h3>
-                            <Select defaultValue="weekly">
-                                <SelectTrigger className="w-[120px]">
-                                    <SelectValue placeholder="Select view" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="daily">Daily</SelectItem>
-                                    <SelectItem value="weekly">Weekly</SelectItem>
-                                    <SelectItem value="monthly">Monthly</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <ResponsiveContainer width="100%" height={300}>
-                            <AreaChart data={applicationTrends}>
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="name" />
-                                <YAxis />
-                                <RechartsTooltip />
-                                <Area 
-                                    type="monotone" 
-                                    dataKey="applications" 
-                                    stroke="#2563eb" 
-                                    fill="url(#colorApplications)" 
-                                />
-                                <defs>
-                                    <linearGradient id="colorApplications" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#2563eb" stopOpacity={0.8}/>
-                                        <stop offset="95%" stopColor="#2563eb" stopOpacity={0.1}/>
-                                    </linearGradient>
-                                </defs>
-                            </AreaChart>
-                        </ResponsiveContainer>
-                    </motion.div>
-
-                    <motion.div
-                        whileHover={{ y: -5 }}
-                        className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700"
-                    >
-                        <div className="flex items-center justify-between mb-6">
-                            <h3 className="text-lg font-semibold flex items-center">
-                                <PieChart className="w-5 h-5 mr-2 text-purple-500" />
-                                Job Categories
-                            </h3>
-                        </div>
-                        <ResponsiveContainer width="100%" height={300}>
-                            <RechartsPieChart>
-                                <Pie
-                                    data={jobCategories}
-                                    cx="50%"
-                                    cy="50%"
-                                    labelLine={false}
-                                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                                    outerRadius={100}
-                                    fill="#8884d8"
-                                    dataKey="value"
-                                >
-                                    {jobCategories.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                    ))}
-                                </Pie>
-                            </RechartsPieChart>
-                        </ResponsiveContainer>
-                    </motion.div>
-                </div>
-
-                {/* Enhanced Quick Actions with Working Filters */}
+                {/* Quick Actions */}
                 <div className="flex flex-wrap items-center justify-between gap-4 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg">
                     <div className="flex items-center space-x-3">
                         <div className="relative">
@@ -401,104 +283,9 @@ const AdminJobsTable = () => {
                             </SelectContent>
                         </Select>
                     </div>
-
-                    <div className="flex items-center space-x-3">
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger>
-                                    <Popover>
-                                        <PopoverTrigger>
-                                            <Badge variant="outline" className="px-3 py-1 cursor-pointer hover:bg-gray-100 relative">
-                                                <Bell className="w-4 h-4" />
-                                                {notifications.some(n => n.unread) && (
-                                                    <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full" />
-                                                )}
-                                            </Badge>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-80 p-0">
-                                            <div className="p-4 border-b border-gray-100">
-                                                <h3 className="font-semibold">Notifications</h3>
-                                            </div>
-                                            <div className="max-h-[300px] overflow-y-auto">
-                                                {notifications.map(notif => (
-                                                    <div 
-                                                        key={notif.id}
-                                                        className={`p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors ${
-                                                            notif.unread ? 'bg-blue-50' : ''
-                                                        }`}
-                                                    >
-                                                        <div className="flex justify-between items-start">
-                                                            <div className="flex-1">
-                                                                <p className="text-sm">{notif.text}</p>
-                                                                <p className="text-xs text-gray-500 mt-1">{notif.time}</p>
-                                                            </div>
-                                                            <button 
-                                                                onClick={() => removeNotification(notif.id)}
-                                                                className="text-gray-400 hover:text-gray-600"
-                                                            >
-                                                                <X className="w-4 h-4" />
-                                                            </button>
-                                                        </div>
-                                                        {notif.unread && (
-                                                            <button
-                                                                onClick={() => markNotificationRead(notif.id)}
-                                                                className="text-xs text-blue-500 mt-2 hover:text-blue-600"
-                                                            >
-                                                                Mark as read
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </PopoverContent>
-                                    </Popover>
-                                </TooltipTrigger>
-                                <TooltipContent>Notifications</TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
-
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger>
-                                    <Popover>
-                                        <PopoverTrigger>
-                                            <Badge variant="outline" className="px-3 py-1 cursor-pointer hover:bg-gray-100">
-                                                <Settings className="w-4 h-4" />
-                                            </Badge>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-80">
-                                            <div className="p-4 space-y-4">
-                                                <h3 className="font-semibold">Dashboard Settings</h3>
-                                                <div className="space-y-3">
-                                                    {Object.entries(settingsOptions).map(([key, value]) => (
-                                                        <div key={key} className="flex items-center justify-between">
-                                                            <span className="text-sm capitalize">
-                                                                {key.replace(/([A-Z])/g, ' $1').trim()}
-                                                            </span>
-                                                            <button
-                                                                onClick={() => updateSettings(key)}
-                                                                className={`w-10 h-5 rounded-full transition-colors ${
-                                                                    value ? 'bg-blue-500' : 'bg-gray-200'
-                                                                }`}
-                                                            >
-                                                                <div className={`w-4 h-4 rounded-full bg-white transform transition-transform ${
-                                                                    value ? 'translate-x-5' : 'translate-x-1'
-                                                                }`} />
-                                                            </button>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        </PopoverContent>
-                                    </Popover>
-                                </TooltipTrigger>
-                                <TooltipContent>Settings</TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
-                    </div>
                 </div>
 
-                {/* Enhanced Jobs Table */}
+                {/* Jobs Table */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -530,6 +317,7 @@ const AdminJobsTable = () => {
                                         <div className="flex items-center space-x-3">
                                             <Avatar className="h-10 w-10">
                                                 <AvatarImage src={job?.company?.logo} alt={job?.company?.name} />
+                                                <AvatarFallback>{job?.company?.name?.charAt(0)}</AvatarFallback>
                                             </Avatar>
                                             <div>
                                                 <p className="font-medium">{job?.company?.name}</p>
@@ -566,13 +354,14 @@ const AdminJobsTable = () => {
                                     <TableCell className="text-right">
                                         <TooltipProvider>
                                             <Popover>
-                                                <PopoverTrigger>
-                                                    <motion.button
+                                                <PopoverTrigger asChild>
+                                                    <motion.div
                                                         whileHover={{ scale: 1.1 }}
                                                         whileTap={{ scale: 0.9 }}
+                                                        className="cursor-pointer"
                                                     >
                                                         <MoreHorizontal className="w-5 h-5" />
-                                                    </motion.button>
+                                                    </motion.div>
                                                 </PopoverTrigger>
                                                 <PopoverContent className="w-48 p-2">
                                                     <div className="space-y-2">
@@ -592,15 +381,10 @@ const AdminJobsTable = () => {
                                                             <Edit2 className="w-4 h-4 text-green-500" />
                                                             <span>Edit Listing</span>
                                                         </motion.div>
+                                                        
                                                         <motion.div
                                                             whileHover={{ x: 5 }}
-                                                            className="flex items-center space-x-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md cursor-pointer"
-                                                        >
-                                                            <Archive className="w-4 h-4 text-yellow-500" />
-                                                            <span>Archive Job</span>
-                                                        </motion.div>
-                                                        <motion.div
-                                                            whileHover={{ x: 5 }}
+                                                            onClick={() => setJobToDelete(job._id)}
                                                             className="flex items-center space-x-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md cursor-pointer text-red-500"
                                                         >
                                                             <Trash2 className="w-4 h-4" />
@@ -617,6 +401,35 @@ const AdminJobsTable = () => {
                     </Table>
                 </motion.div>
             </div>
+
+            <AlertDialog open={!!jobToDelete} onOpenChange={() => setJobToDelete(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure you want to delete this job?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete the job listing
+                            and all associated applications.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={() => jobToDelete && handleDeleteJob(jobToDelete)}
+                            className="bg-red-600 hover:bg-red-700 text-white"
+                            disabled={isDeleting}
+                        >
+                            {isDeleting ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Deleting...
+                                </>
+                            ) : (
+                                'Delete'
+                            )}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </motion.div>
     )
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion , AnimatePresence } from 'framer-motion';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
@@ -39,8 +39,6 @@ import {
     UserCog,
     MessageSquare,
     BellRing,
-    CircleUser,
-    MailOpen,
     Eye,
     CheckCircle,
     AlertCircle,
@@ -130,7 +128,7 @@ const Navbar = () => {
 
     const isActive = (path) => location.pathname === path;
 
-    const NavLink = ({ to, icon: Icon, children, badge }) => (
+    const NavLink = ({ to, icon, children, badge }) => (
         <Link 
             to={to} 
             className={cn(
@@ -140,7 +138,7 @@ const Navbar = () => {
                     : "text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20"
             )}
         >
-            <Icon className="h-4 w-4 transition-transform group-hover:scale-110" />
+            {icon && React.createElement(icon, { className: "h-4 w-4 transition-transform group-hover:scale-110" })}
             <span className="transition-transform group-hover:translate-x-1">{children}</span>
             {badge && (
                 <Badge variant="secondary" className="ml-2 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400">
@@ -275,12 +273,7 @@ const Navbar = () => {
             {/* Mobile Menu */}
             <AnimatePresence>
                 {isMobileMenuOpen && (
-                    <MobileMenu 
-                        user={user} 
-                        onLogout={logoutHandler}
-                        query={query}
-                        setQuery={setQuery}
-                    />
+                    <MobileMenu />
                 )}
             </AnimatePresence>
         </motion.nav>
@@ -312,9 +305,6 @@ const UserMenu = ({ user, onLogout }) => (
 
 const UserMenuContent = ({ user, onLogout }) => {
     const navigate = useNavigate();
-    const [preferences, setPreferences] = useState({
-        emailNotifications: true
-    });
 
     const handleProfileNav = () => {
         navigate('/profile');
@@ -341,7 +331,7 @@ const UserMenuContent = ({ user, onLogout }) => {
                     {user?.role === 'recruiter' && (
                         <Badge className="mt-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white">
                             <Crown className="h-3 w-3 mr-1" />
-                            Premium Recruiter
+                        
                         </Badge>
                     )}
                 </div>
@@ -376,17 +366,7 @@ const UserMenuContent = ({ user, onLogout }) => {
                     </div>
                 </Button>
 
-                {/* Premium Status - For Premium Users */}
-                {user?.role === 'recruiter' && (
-                    <div className="mt-4 p-3 rounded-lg bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-100 dark:border-purple-800/20">
-                        <div className="flex items-center gap-2">
-                            <Sparkles className="h-4 w-4 text-purple-500" />
-                            <span className="text-sm font-medium text-purple-700 dark:text-purple-300">Premium Active</span>
-                        </div>
-                        <p className="text-xs text-gray-500 mt-1">All premium features unlocked</p>
-                    </div>
-                )}
-
+               
                 {/* Logout Button */}
                 <Button 
                     variant="ghost" 
@@ -401,18 +381,17 @@ const UserMenuContent = ({ user, onLogout }) => {
     );
 };
 
-const MenuLink = ({ icon: Icon, children, href, onClick, className }) => {
+const MenuLink = ({ icon, children, href, onClick, className }) => {
     const content = (
-        <motion.div
-            whileHover={{ x: 5 }}
+        <div
             className={cn(
                 "flex items-center gap-2 px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors",
                 className
             )}
         >
-            <Icon className="h-4 w-4" />
+            {icon && React.createElement(icon, { className: "h-4 w-4" })}
             <span>{children}</span>
-        </motion.div>
+        </div>
     );
 
     return onClick ? (
@@ -424,15 +403,10 @@ const MenuLink = ({ icon: Icon, children, href, onClick, className }) => {
     );
 };
 
-const MobileMenu = ({ user, onLogout, query, setQuery }) => (
-    <motion.div
-        initial={{ opacity: 0, height: 0 }}
-        animate={{ opacity: 1, height: 'auto' }}
-        exit={{ opacity: 0, height: 0 }}
-        className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900"
-    >
+const MobileMenu = () => (
+    <div className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
         {/* Mobile menu content */}
-    </motion.div>
+    </div>
 );
 
 const NotificationPopover = ({ notifications, setNotifications }) => (
@@ -540,33 +514,11 @@ const NotificationItem = ({ notification, onRead }) => {
 };
 
 const SettingsPopover = () => {
-    const { user } = useSelector(store => store.auth);
     const navigate = useNavigate();
-    const [preferences, setPreferences] = useState({
-        emailNotifications: true,
-        darkMode: false,
-        profileVisibility: 'public'
-    });
 
     const handleProfileNav = () => {
         navigate('/profile');
         toast.success('Redirecting to profile settings');
-    };
-
-    const handleThemeToggle = () => {
-        setPreferences(prev => ({
-            ...prev,
-            darkMode: !prev.darkMode
-        }));
-        toast.success('Theme preference saved');
-    };
-
-    const handleNotificationToggle = () => {
-        setPreferences(prev => ({
-            ...prev,
-            emailNotifications: !prev.emailNotifications
-        }));
-        toast.success(`Email notifications ${preferences.emailNotifications ? 'disabled' : 'enabled'}`);
     };
 
     return (
@@ -620,30 +572,6 @@ const SettingsPopover = () => {
                             <ArrowUpRight className="h-4 w-4 opacity-50" />
                         </Button>
 
-                        {/* Notification Preferences */}
-                        <div className="flex items-center justify-between p-2 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20">
-                            <div className="flex items-center gap-2">
-                                <BellDot className="h-4 w-4 text-purple-500" />
-                                <div>
-                                    <p className="text-sm font-medium">Email Notifications</p>
-                                    <p className="text-xs text-gray-500">Get updates via email</p>
-                                </div>
-                            </div>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className={cn(
-                                    "px-2 py-1 rounded-full transition-colors",
-                                    preferences.emailNotifications 
-                                        ? "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400"
-                                        : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
-                                )}
-                                onClick={handleNotificationToggle}
-                            >
-                                {preferences.emailNotifications ? 'On' : 'Off'}
-                            </Button>
-                        </div>
-
                         {/* Theme Toggle */}
                         <div className="flex items-center justify-between p-2 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20">
                             <div className="flex items-center gap-2">
@@ -657,29 +585,12 @@ const SettingsPopover = () => {
                         </div>
 
                         {/* Account Status - For Premium Users */}
-                        {user?.role === 'recruiter' && (
-                            <div className="mt-4 p-3 rounded-lg bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-100 dark:border-purple-800/20">
-                                <div className="flex items-center gap-2">
-                                    <Sparkles className="h-4 w-4 text-purple-500" />
-                                    <span className="text-sm font-medium">Premium Account</span>
-                                </div>
-                                <p className="text-xs text-gray-500 mt-1">All premium features unlocked</p>
-                            </div>
-                        )}
+                       
                     </div>
 
                     {/* Quick Actions */}
                     <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-2 px-2">
-                        <Button 
-                            variant="ghost" 
-                            className="w-full justify-start gap-2 hover:bg-purple-50 dark:hover:bg-purple-900/20"
-                            onClick={() => {
-                                toast.success("Settings synced successfully!");
-                            }}
-                        >
-                            <RefreshCw className="h-4 w-4 text-purple-500" />
-                            <span>Sync Settings</span>
-                        </Button>
+                        
                     </div>
                 </motion.div>
             </PopoverContent>

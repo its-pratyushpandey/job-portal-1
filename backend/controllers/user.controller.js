@@ -151,6 +151,7 @@ export const login = async (req, res) => {
             .json({
                 message: `Welcome back ${user.fullname}`,
                 user,
+                token,
                 success: true
             });
     } catch (error) {
@@ -176,7 +177,7 @@ export const logout = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
     try {
-        const { fullname, email, phoneNumber, bio, skills, location } = req.body;
+        const { fullname, email, phoneNumber, bio, location, companyRole, expertise, specializations, linkedIn, website } = req.body;
         const userId = req.id;
 
         let user = await User.findById(userId);
@@ -187,38 +188,36 @@ export const updateProfile = async (req, res) => {
             });
         }
 
-        // Handle file upload only if a file is present
+        // Handle file upload if present
         if (req.file) {
             const fileUri = getDataUri(req.file);
             if (fileUri) {
                 try {
                     const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
-                    // Update resume only if upload is successful
-                    user.profile.resume = cloudResponse.secure_url;
-                    user.profile.resumeOriginalName = req.file.originalname;
+                    user.profile.profilePhoto = cloudResponse.secure_url;
                 } catch (cloudinaryError) {
                     console.error('Cloudinary upload failed:', cloudinaryError);
                     return res.status(500).json({
-                        message: "Failed to upload resume",
+                        message: "Failed to upload profile photo",
                         success: false
                     });
                 }
             }
         }
 
-        // Update other fields
+        // Update user fields
         if (fullname) user.fullname = fullname;
         if (email) user.email = email;
         if (phoneNumber) user.phoneNumber = phoneNumber;
+        
+        // Update profile fields
         if (bio) user.profile.bio = bio;
         if (location) user.profile.location = location;
-        
-        // Handle skills array
-        if (skills) {
-            user.profile.skills = typeof skills === 'string' 
-                ? skills.split(',').map(skill => skill.trim()) 
-                : skills;
-        }
+        if (companyRole) user.profile.companyRole = companyRole;
+        if (expertise) user.profile.expertise = JSON.parse(expertise);
+        if (specializations) user.profile.specializations = JSON.parse(specializations);
+        if (linkedIn) user.profile.linkedIn = linkedIn;
+        if (website) user.profile.website = website;
 
         await user.save();
 

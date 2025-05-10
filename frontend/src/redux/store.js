@@ -22,16 +22,15 @@ const persistConfig = {
 }
 
 const rootReducer = combineReducers({
-    auth:authSlice,
-    job:jobSlice,
-    company:companySlice,
-    application:applicationSlice
+    auth: authSlice,
+    job: jobSlice,
+    company: companySlice,
+    application: applicationSlice
 })
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)
 
-
-const store = configureStore({
+export const store = configureStore({
     reducer: persistedReducer,
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
@@ -40,4 +39,5 @@ const store = configureStore({
             },
         }),
 });
-export default store;
+
+export const persistor = persistStore(store);

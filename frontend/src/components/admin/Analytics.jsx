@@ -32,7 +32,7 @@ const Analytics = () => {
         if (!allAdminJobs?.length) return [];
         
         const daysToShow = timeRange === 'week' ? 7 : timeRange === 'month' ? 30 : 90;
-        const today = new Date();
+         const today = new Date();
         
         // Create an array of dates and initialize counts
         const dateMap = new Map();

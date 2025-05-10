@@ -40,21 +40,39 @@ const PostJob = () => {
 
     const submitHandler = async (e) => {
         e.preventDefault();
+        
+        // Validate required fields
+        if (!input.title || !input.description || !input.requirements || !input.salary || 
+            !input.location || !input.jobType || !input.experience || !input.position || !input.companyId) {
+            toast.error('Please fill in all required fields');
+            return;
+        }
+
         try {
             setLoading(true);
-            const res = await axios.post(`${JOB_API_END_POINT}/post`, input,{
-                headers:{
-                    'Content-Type':'application/json'
+            const jobData = {
+                ...input,
+                salary: parseFloat(input.salary),
+                position: parseInt(input.position),
+                status: 'active',
+                createdAt: new Date().toISOString()
+            };
+
+            const res = await axios.post(`${JOB_API_END_POINT}/post`, jobData, {
+                headers: {
+                    'Content-Type': 'application/json'
                 },
-                withCredentials:true
+                withCredentials: true
             });
-            if(res.data.success){
+
+            if (res.data.success) {
                 toast.success(res.data.message);
                 navigate("/admin/jobs");
             }
         } catch (error) {
-            toast.error(error.response.data.message);
-        } finally{
+            console.error('Error posting job:', error);
+            toast.error(error.response?.data?.message || 'Failed to post job');
+        } finally {
             setLoading(false);
         }
     }
@@ -156,11 +174,15 @@ const PostJob = () => {
                                             {
                                                 companies.map((company) => {
                                                     return (
-                                                        <SelectItem value={company?.name?.toLowerCase()}>{company.name}</SelectItem>
+                                                        <SelectItem 
+                                                            key={company._id}
+                                                            value={company?.name?.toLowerCase()}
+                                                        >
+                                                            {company.name}
+                                                        </SelectItem>
                                                     )
                                                 })
                                             }
-
                                         </SelectGroup>
                                     </SelectContent>
                                 </Select>

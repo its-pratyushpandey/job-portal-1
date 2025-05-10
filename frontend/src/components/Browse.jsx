@@ -27,6 +27,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Badge } from './ui/badge';
+import SearchBar from './ui/search-bar';
 
 const Browse = () => {
     useGetAllJobs();
@@ -111,6 +112,20 @@ const Browse = () => {
         }
     };
 
+    const recentSearches = [
+        "Frontend Developer",
+        "React Native",
+        "UI/UX Designer",
+        "Product Manager"
+    ];
+
+    const popularSearches = [
+        "Software Engineer",
+        "Data Scientist",
+        "DevOps Engineer",
+        "Full Stack Developer"
+    ];
+
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-all duration-300">
             <Navbar />
@@ -131,24 +146,18 @@ const Browse = () => {
                             Find your perfect role from {filteredJobs.length} open positions
                         </p>
 
-                        {/* Search Bar */}
+                        {/* Premium Search Bar */}
                         <div className="max-w-2xl mx-auto">
-                            <div className="flex items-center gap-2 p-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20">
-                                <Search className="h-5 w-5 text-white ml-4" />
-                                <Input
-                                    type="text"
-                                    placeholder="Search by job title, company, or keywords..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="flex-1 bg-transparent border-none text-white placeholder:text-gray-300 focus-visible:ring-0"
-                                />
-                                <Button 
-                                    className="rounded-full bg-white text-purple-600 hover:bg-gray-100"
-                                    onClick={() => dispatch(setSearchedQuery(searchTerm))}
-                                >
-                                    Search
-                                </Button>
-                            </div>
+                            <SearchBar
+                                onSearch={(term) => {
+                                    setSearchTerm(term);
+                                    dispatch(setSearchedQuery(term));
+                                }}
+                                placeholder="Search by job title, company, or keywords..."
+                                variant="hero"
+                                recentSearches={recentSearches}
+                                popularSearches={popularSearches}
+                            />
                         </div>
                     </motion.div>
                 </div>

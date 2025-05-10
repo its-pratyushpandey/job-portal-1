@@ -8,12 +8,14 @@ import { toast } from 'sonner';
 import axios from 'axios';
 import { JOB_API_END_POINT } from '@/utils/constant';
 import { useSelector } from 'react-redux';
+import PremiumApplicationForm from './PremiumApplicationForm';
 
 const Job = ({ job, isSavedPage = false }) => {
     const [saving, setSaving] = useState(false);
     const [isSaved, setIsSaved] = useState(isSavedPage);
     const { user } = useSelector(state => state.auth);
     const navigate = useNavigate();
+    const [showApplicationForm, setShowApplicationForm] = useState(false);
 
     const daysAgoFunction = (mongodbTime) => {
         const createdAt = new Date(mongodbTime);
@@ -46,6 +48,15 @@ const Job = ({ job, isSavedPage = false }) => {
         } finally {
             setSaving(false);
         }
+    };
+
+    const handleApply = () => {
+        if (!user) {
+            toast.error("Please login to apply");
+            navigate("/login");
+            return;
+        }
+        setShowApplicationForm(true);
     };
 
     return (
@@ -108,7 +119,20 @@ const Job = ({ job, isSavedPage = false }) => {
                         {saving ? 'Saving...' : 'Save Job'}
                     </Button>
                 )}
+                <Button 
+                    onClick={handleApply}
+                    className="bg-green-600 hover:bg-green-700 text-white dark:bg-green-700 dark:hover:bg-green-800"
+                >
+                    Apply
+                </Button>
             </div>
+            {showApplicationForm && (
+                <PremiumApplicationForm
+                    jobId={job._id}
+                    job={job}
+                    onClose={() => setShowApplicationForm(false)}
+                />
+            )}
         </div>
     );
 };

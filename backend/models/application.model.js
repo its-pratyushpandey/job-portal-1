@@ -1,49 +1,114 @@
 import mongoose from "mongoose";
 
 const applicationSchema = new mongoose.Schema({
+    // Existing fields
     job: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Job',
-        required: [true, 'Job ID is required'],
-        validate: {
-            validator: async function(v) {
-                const Job = mongoose.model('Job');
-                const job = await Job.findById(v);
-                return job ? true : false;
-            },
-            message: 'Invalid Job ID'
-        }
+        required: true
     },
     applicant: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: [true, 'Applicant ID is required'],
-        validate: {
-            validator: async function(v) {
-                const User = mongoose.model('User');
-                const user = await User.findById(v);
-                return user ? true : false;
-            },
-            message: 'Invalid User ID'
-        }
+        required: true
     },
+
+    // Basic Information
+    fullName: {
+        type: String,
+        required: true
+    },
+    email: {
+        type: String,
+        required: true
+    },
+    contactNumber: {
+        type: String,
+        required: true
+    },
+    currentAddress: {
+        type: String,
+        required: true
+    },
+    dateOfBirth: {
+        type: Date,
+        required: true
+    },
+
+    // Academic Background
+    collegeName: {
+        type: String,
+        required: true
+    },
+    degree: {
+        type: String,
+        required: true
+    },
+    branch: {
+        type: String,
+        required: true
+    },
+    passingYear: {
+        type: Number,
+        required: true
+    },
+    cgpa: {
+        type: Number,
+        required: true
+    },
+
+    // Experience
+    internships: [{
+        company: String,
+        role: String,
+        duration: String
+    }],
+    workExperience: [{
+        company: String,
+        role: String,
+        duration: String
+    }],
+
+    // Skills & Projects
+    technicalSkills: [String],
+    projects: [{
+        title: String,
+        technologies: String,
+        description: String
+    }],
+
+    // Uploads
+    resume: {
+        type: String,
+        required: true
+    },
+    resumeOriginalName: String,
+    photo: {
+        type: String,
+        required: true
+    },
+
+    // Preferences
+    preferredRoles: [String],
+    availableStartDate: {
+        type: Date,
+        required: true
+    },
+
+    // Status tracking
     status: {
         type: String,
-        enum: {
-            values: ['pending', 'accepted', 'rejected'],
-            message: '{VALUE} is not a valid status'
-        },
+        enum: ['pending', 'under_review', 'accepted', 'rejected'],
         default: 'pending'
-    }
-}, { timestamps: true });
+    },
 
-// Add error handling middleware
-applicationSchema.post('save', function(error, doc, next) {
-    if (error.name === 'ValidationError') {
-        next(new Error('Invalid application data'));
-    } else {
-        next(error);
+    // Terms agreement
+    agreeToTerms: {
+        type: Boolean,
+        required: true
     }
+}, {
+    timestamps: true
 });
 
-export const Application = mongoose.model("Application", applicationSchema);
+export const Application = mongoose.model('Application', applicationSchema);

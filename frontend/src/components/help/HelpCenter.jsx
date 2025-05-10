@@ -23,6 +23,7 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { toast } from 'sonner';
 import LiveChatBox from './LiveChatBox';
+import AIErrorBoundary from '../ai/AIErrorBoundary';
 
 const HelpCenter = () => {
     const [searchQuery, setSearchQuery] = useState('');
@@ -304,8 +305,9 @@ const HelpCenter = () => {
                 </div>
             </div>
 
-            {/* Add LiveChatBox */}
-            <LiveChatBox />
+            <AIErrorBoundary>
+                <LiveChatBox />
+            </AIErrorBoundary>
         </div>
     );
 };

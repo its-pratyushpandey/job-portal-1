@@ -11,13 +11,15 @@ import uploadRoute from "./routes/upload.js";
 import helmet from "helmet";
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
-import verifyToken from './middlewares/verifyToken.js';  // Correct import
+import verifyToken from './middlewares/verifyToken.js';
+import recruiterRoute from "./routes/recruiter.route.js";
 
-dotenv.config({});
+// Load environment variables
+dotenv.config();
 
 // Ensure required environment variables are set
 const requiredEnvVars = [
-  ["PORT", "3000"],
+  ["PORT", "8000"],
   ["MONGO_URI", undefined],
   ["JWT_SECRET", undefined],
   ["NODE_ENV", "development"],
@@ -26,7 +28,8 @@ const requiredEnvVars = [
   ["CLOUDINARY_API_SECRET", undefined],
 ];
 
-requiredEnvVars.forEach(([envVar, defaultValue]) => {
+// Validate environment variables
+for (const [envVar, defaultValue] of requiredEnvVars) {
   if (!process.env[envVar]) {
     if (defaultValue !== undefined) {
       process.env[envVar] = defaultValue;
@@ -36,25 +39,7 @@ requiredEnvVars.forEach(([envVar, defaultValue]) => {
       process.exit(1);
     }
   }
-});
-
-// Optional: test DB connection and exit
-const checkDBConnection = async () => {
-  try {
-    if (!process.env.MONGO_URI) {
-      throw new Error("MONGO_URI is not defined");
-    }
-    await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    console.log("MongoDB connection test successful");
-    process.exit(0);
-  } catch (error) {
-    console.error("MongoDB connection failed:", error.message);
-    process.exit(1);
-  }
-};
+}
 
 const app = express();
 
@@ -67,11 +52,12 @@ app.use(helmet.noSniff());
 app.use(helmet.xssFilter());
 app.use(helmet.hidePoweredBy());
 
+// CORS configuration
 const corsOptions = {
-  origin: process.env.CLIENT_URL || "http://localhost:5173",
+  origin: true, // Allow all origins in development
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
   exposedHeaders: ["set-cookie"],
   maxAge: 600,
   preflightContinue: false,
@@ -85,8 +71,9 @@ app.use("/api/v1/company", companyRoute);
 app.use("/api/v1/job", jobRoute);
 app.use("/api/v1/application", applicationRoute);
 app.use("/api/v1", uploadRoute);
+app.use("/api/v1/recruiter", recruiterRoute);
 
-// ✅ JWT Protected Test Route
+// Protected test route
 app.get("/api/v1/test/protected", verifyToken, (req, res) => {
   res.json({
     message: "Protected route accessed successfully",
@@ -112,22 +99,56 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server
-const startServer = async () => {
+// Start server with retry logic
+const startServer = async (retries = 5) => {
   try {
+    console.log('Attempting to connect to database...');
     const dbConnected = await connectDB();
     if (!dbConnected) {
       throw new Error("Database connection failed");
     }
 
-    const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => {
+    const PORT = process.env.PORT || 8000;
+    const server = app.listen(PORT, () => {
       console.log(`Server running at port ${PORT}`);
+      console.log(`Environment: ${process.env.NODE_ENV}`);
+      console.log(`Client URL: ${process.env.CLIENT_URL}`);
+      console.log('Server is ready to accept connections');
     });
+
+    // Handle server errors
+    server.on('error', (error) => {
+      console.error('Server error:', error);
+      if (error.code === 'EADDRINUSE') {
+        console.error(`Port ${PORT} is already in use`);
+        process.exit(1);
+      }
+    });
+
   } catch (error) {
     console.error("Failed to start server:", error.message);
-    process.exit(1);
+    if (retries > 0) {
+      console.log(`Retrying... ${retries} attempts remaining`);
+      setTimeout(() => startServer(retries - 1), 5000);
+    } else {
+      console.error("Max retries reached. Exiting...");
+      process.exit(1);
+    }
   }
 };
 
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+  process.exit(1);
+});
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (error) => {
+  console.error('Unhandled Rejection:', error);
+  process.exit(1);
+});
+
+// Start the server
+console.log('Starting server...');
 startServer();

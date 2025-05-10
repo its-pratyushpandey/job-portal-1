@@ -1,4 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react"
+import { ThemeProvider as NextThemesProvider } from "next-themes";
+import { Loader2 } from "lucide-react";
 
 const ThemeProviderContext = createContext({})
 
@@ -6,6 +8,7 @@ export function ThemeProvider({
   children,
   defaultTheme = "system",
   storageKey = "job-portal-theme",
+  ...props
 }) {
   const [theme, setTheme] = useState(() => 
     localStorage.getItem(storageKey) || defaultTheme
@@ -34,9 +37,16 @@ export function ThemeProvider({
   }
 
   return (
-    <ThemeProviderContext.Provider value={value}>
-      {children}
-    </ThemeProviderContext.Provider>
+    <NextThemesProvider {...props}>
+      <ThemeProviderContext.Provider value={value}>
+        <div className="min-h-screen">
+          {children}
+          <div id="loading-overlay" className="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <Loader2 className="h-8 w-8 animate-spin text-white" />
+          </div>
+        </div>
+      </ThemeProviderContext.Provider>
+    </NextThemesProvider>
   )
 }
 

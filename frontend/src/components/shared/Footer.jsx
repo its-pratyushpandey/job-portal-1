@@ -65,6 +65,18 @@ const Footer = () => {
                 href: "https://www.google.com/maps/place/KL+University,+Andhra+Pradesh",
                 icon: <MapPin className="h-4 w-4 text-red-500" />
             }
+        ],
+        legal: [
+            { 
+                label: "Privacy Policy", 
+                href: "/privacy-policy",  // Make sure this matches your route path
+                icon: <Shield className="h-4 w-4 text-purple-500" />
+            },
+            { 
+                label: "Terms of Service", 
+                href: "/terms-of-service",  // Make sure this matches your route path
+                icon: <Shield className="h-4 w-4 text-blue-500" />
+            }
         ]
     };
 
@@ -206,6 +218,7 @@ const Footer = () => {
                     <FooterLinkSection title="For Job Seekers" links={footerLinks.jobSeekers} />
                     <FooterLinkSection title="For Employers" links={footerLinks.employers} />
                     <FooterLinkSection title="Contact Us" links={footerLinks.contact} />
+                   
                 </div>
 
                 {/* Footer Bottom */}
@@ -215,10 +228,10 @@ const Footer = () => {
                             © {currentYear} NextHire. All rights reserved.
                         </p>
                         <div className="flex items-center gap-6">
-                            <Link to="/privacy" className="text-sm text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400">
+                            <Link to="/privacy-policy" className="text-sm text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400">
                                 Privacy Policy
                             </Link>
-                            <Link to="/terms" className="text-sm text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400">
+                            <Link to="/terms-of-service" className="text-sm text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400">
                                 Terms of Service
                             </Link>
                             <Badge 

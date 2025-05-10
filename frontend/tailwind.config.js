@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
-export default {
-  darkMode: ["class"],
+module.exports = {
+  darkMode: "class",
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -67,7 +67,9 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       animation: {
-        'gradient': 'gradient 8s ease infinite',
+        'gradient': 'gradient 8s linear infinite',
+        'progress': 'progress 1s ease-in-out infinite',
+        'shimmer': 'shimmer 2s linear infinite',
       },
       keyframes: {
         gradient: {
@@ -80,8 +82,29 @@ export default {
             'background-position': 'right center'
           },
         },
+        progress: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(0%)' },
+        },
+        shimmer: {
+          '0%': {
+            'background-position': '-200% 0'
+          },
+          '100%': {
+            'background-position': '200% 0'
+          }
+        }
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
-}
+  plugins: [
+    require('@tailwindcss/forms'),
+    require('tailwindcss-animate')
+  ],
+  safelist: [
+    {
+      pattern: /(bg|text|border)-(blue|purple|green|amber|indigo|emerald)-([1-9]00)/,
+      variants: ['hover', 'dark']
+    }
+  ]
+};

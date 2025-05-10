@@ -33,6 +33,53 @@ const userSchema = new mongoose.Schema({
         profilePhoto:{
             type:String,
             default:""
+        },
+        companyRole: { type: String },
+        expertise: [{ type: String }],
+        linkedIn: { type: String },
+        website: { type: String },
+        achievements: [{
+            title: String,
+            date: Date,
+            description: String
+        }],
+        specializations: [{ type: String }],
+        stats: {
+            totalHires: { type: Number, default: 0 },
+            activeJobs: { type: Number, default: 0 },
+            responseRate: { type: Number, default: 0 },
+            avgTimeToHire: { type: Number, default: 0 },
+            successfulPlacements: { type: Number, default: 0 },
+            candidatePool: { type: Number, default: 0 },
+            lastUpdated: { type: Date, default: Date.now }
+        }
+    },
+    subscription: {
+        status: {
+            type: String,
+            enum: ['free', 'active', 'cancelled', 'expired'],
+            default: 'free'
+        },
+        plan: {
+            type: String,
+            enum: ['basic', 'premium', 'enterprise'],
+            default: 'basic'
+        },
+        startDate: {
+            type: Date,
+            default: null
+        },
+        endDate: {
+            type: Date,
+            default: null
+        },
+        paymentMethod: {
+            type: String,
+            default: null
+        },
+        cancelledAt: {
+            type: Date,
+            default: null
         }
     },
 },{timestamps:true});
